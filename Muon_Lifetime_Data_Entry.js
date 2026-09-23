@@ -3,7 +3,7 @@
  */
 
 // --- CONFIGURE YOUR GITHUB REPO HERE ---
-const repoOwner = "Spiffer1"; // Replace with your GitHub username
+const repoOwner = "spiffer1"; // Replace with your GitHub username
 const repoName = "Muon_Lifetime_Data_Entry";        // Replace with your repository name
 
 let img;
