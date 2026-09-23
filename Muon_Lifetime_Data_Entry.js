@@ -67,7 +67,7 @@ function draw() {
   textAlign(LEFT, TOP);
   textSize(16);
 
-  let sidebarX = Math.floor(scaleFactor * 750);
+  let sidebarX = Math.floor(scaleFactor * 850);
   let sidebarY = 20;
 
   fill(0);
