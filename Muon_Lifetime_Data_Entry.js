@@ -9,7 +9,7 @@ let fileList = [
 ];
 let currentImageIndex = 0;
 
-const scaleFactor = 1.0;
+const scaleFactor = 1.5;
 const defaultTime0 = 62.5 * scaleFactor;
 let settingTime0 = false;
 let imageProcessingComplete = false;
@@ -115,6 +115,7 @@ function draw() {
 function loadNextImage(index) {
   if (index >= fileList.length) {
     imageProcessingComplete = true;
+    saveStrings(savedTimes, 'muon_lifetimes.csv');
     return;
   }
 
