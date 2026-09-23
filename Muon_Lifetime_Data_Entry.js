@@ -1,57 +1,51 @@
-/* Muon Lifetime Measurement Tool - p5.js Version
- * Original by Sean Fottrell
- * Ported for Browser Execution with Google Drive support
+/* Muon Lifetime Measurement Tool - GitHub Pages Baseline Test
+ * Debug Version: Uses relative path images inside the repository
  */
 
 let img;
-let fileList = []; // Array of URL strings or File objects
-let currentImageNumber = 0;
+let fileList = [
+  "images/scope1.png",  // Add your image relative paths here
+  "images/scope2.png"
+];
+let currentImageIndex = 0;
 
 const scaleFactor = 2.0;
 const defaultTime0 = 62.5 * scaleFactor;
 let settingTime0 = false;
-let doneSettingUp = false;
 let imageProcessingComplete = false;
 
 let xTime0 = defaultTime0;
 let pulseXs = [];
 let pulseYs = [];
-let savedTimes = []; // Holds lifetime data for CSV export
+let savedTimes = [];
 
-// DOM UI elements
-let urlTextArea, loadUrlsButton, localFileInput;
+function preload() {
+  // Preload the first image so width/height exist before setup
+  if (fileList.length > 0) {
+    img = loadImage(fileList[currentImageIndex]);
+  }
+}
 
 function setup() {
-  createCanvas(floor(970 * scaleFactor), floor(560 * scaleFactor));
-
-  // --- UI Controls for File Import ---
-  createP('<b>Option 1: Paste Google Drive Image Links (one per line)</b>').position(10, height + 10);
-  urlTextArea = createTextArea('');
-  urlTextArea.position(10, height + 40);
-  urlTextArea.size(500, 80);
-  
-  loadUrlsButton = createButton('Load Google Drive Images');
-  loadUrlsButton.position(520, height + 40);
-  loadUrlsButton.mousePressed(parseGoogleDriveUrls);
-
-  createP('<b>Option 2: Select Local .png Files</b>').position(10, height + 130);
-  localFileInput = createFileInput(handleLocalFiles, true); // Multiple files enabled
-  localFileInput.position(10, height + 160);
+  if (img) {
+    createCanvas(Math.floor(scaleFactor * img.width), Math.floor(scaleFactor * img.height));
+  } else {
+    createCanvas(1200, 700);
+  }
 }
 
 function draw() {
   background(200);
 
-  if (!doneSettingUp) {
-    fill(50);
+  if (!img) {
+    fill(0);
     textSize(18);
-    text("Load images via Google Drive links or the file picker below to start.", 20, 40);
+    text("No image found. Make sure 'images/scope1.png' exists in your repo.", 50, 50);
     return;
   }
 
-  if (img) {
-    image(img, 0, 0, scaleFactor * img.width, scaleFactor * img.height);
-  }
+  // Render scope display
+  image(img, 0, 0, scaleFactor * img.width, scaleFactor * img.height);
 
   // Draw active pulse line (white)
   stroke(255);
@@ -107,15 +101,12 @@ function draw() {
   fill(255);
   textX = scaleFactor * 70;
   textY = scaleFactor * 375;
-  text(`#${currentImageNumber} of ${fileList.length}`, textX, textY);
-
-  let item = fileList[currentImageNumber - 1];
-  let fileName = typeof item === 'string' ? `Drive Image ${currentImageNumber}` : item.name;
-  text(`File: ${fileName}`, textX, textY + 25);
+  text(`#${currentImageIndex + 1} of ${fileList.length}`, textX, textY);
+  text(`File: ${fileList[currentImageIndex]}`, textX, textY + 25);
 }
 
 function mouseClicked() {
-  if (!doneSettingUp || imageProcessingComplete) return;
+  if (imageProcessingComplete || !img) return;
 
   let mX = mouseX;
   let mY = mouseY;
@@ -132,7 +123,7 @@ function mouseClicked() {
     pulseXs.push(mX);
     pulseYs.push(mY);
   } else {
-    // Check click alignment with "Remove" buttons
+    // Remove button detection
     let centerX = scaleFactor * 800 + 108;
     for (let i = 0; i < pulseXs.length; i++) {
       let centerY = scaleFactor * 60 - 6 + (i + 1) * 20;
@@ -147,7 +138,7 @@ function mouseClicked() {
 }
 
 function keyPressed() {
-  if (!doneSettingUp) return;
+  if (!img) return;
 
   if (keyCode === LEFT_ARROW && pulseXs.length > 0) {
     pulseXs[pulseXs.length - 1] -= 1;
@@ -163,7 +154,7 @@ function keyPressed() {
 
   if (key === 'Q' || key === 'q') {
     recordCurrentPulseTimes();
-    exportCSV();
+    saveStrings(savedTimes, 'muon_lifetimes.csv');
     imageProcessingComplete = true;
   }
 
@@ -172,7 +163,6 @@ function keyPressed() {
   }
 }
 
-// Store current image times into master array
 function recordCurrentPulseTimes() {
   for (let x of pulseXs) {
     let t = (x - xTime0) / (scaleFactor * 50);
@@ -182,65 +172,15 @@ function recordCurrentPulseTimes() {
   pulseYs = [];
 }
 
-// Download final CSV output
-function exportCSV() {
-  saveStrings(savedTimes, 'muon_lifetimes.csv');
-}
-
-// Sequentially load image assets
 function loadNextImage() {
-  if (currentImageNumber >= fileList.length) {
+  currentImageIndex++;
+  if (currentImageIndex >= fileList.length) {
     imageProcessingComplete = true;
     return;
   }
 
-  let source = fileList[currentImageNumber];
-  let srcUrl = typeof source === 'string' ? source : source.data;
-
-  loadImage(srcUrl, (loadedImg) => {
+  loadImage(fileList[currentImageIndex], (loadedImg) => {
     img = loadedImg;
-    currentImageNumber++;
+    resizeCanvas(Math.floor(scaleFactor * img.width), Math.floor(scaleFactor * img.height));
   });
-}
-
-// Parse direct Google Drive links
-function parseGoogleDriveUrls() {
-  let lines = urlTextArea.value().split('\n');
-  fileList = [];
-
-  for (let line of lines) {
-    let clean = line.trim();
-    if (clean.length > 0) {
-      let fileId = extractDriveId(clean);
-      if (fileId) {
-        fileList.push(`https://drive.google.com/uc?export=view&id=${fileId}`);
-      }
-    }
-  }
-
-  if (fileList.length > 0) {
-    currentImageNumber = 0;
-    doneSettingUp = true;
-    imageProcessingComplete = false;
-    loadNextImage();
-  } else {
-    alert('No valid Google Drive URLs found.');
-  }
-}
-
-function extractDriveId(url) {
-  let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return match ? match[1] : null;
-}
-
-// Handle multi-file local upload fallback
-function handleLocalFiles(file) {
-  if (file.type === 'image') {
-    fileList.push(file);
-    if (!doneSettingUp) {
-      currentImageNumber = 0;
-      doneSettingUp = true;
-      loadNextImage();
-    }
-  }
 }
