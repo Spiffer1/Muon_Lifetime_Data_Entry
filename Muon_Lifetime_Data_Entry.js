@@ -1,15 +1,17 @@
-/* Muon Lifetime Measurement Tool - GitHub Pages Fix
- * Explicit sizing and asynchronous image loading
+/* Muon Lifetime Measurement Tool - GitHub API Subfolder Auto-Discovery
+ * Sean Fottrell / p5.js Port
  */
 
+// --- CONFIGURE YOUR GITHUB REPO HERE ---
+const repoOwner = "Spiffer1"; // Replace with your GitHub username
+const repoName = "Muon_Lifetime_Data_Entry";        // Replace with your repository name
+
 let img;
-let fileList = [
-  "images/scope1.png",  // Replace with your actual repo relative paths
-  "images/scope2.png"
-];
+let fileList = [];  // Holds download URLs from GitHub API
+let fileNames = []; // Holds display names
 let currentImageIndex = 0;
 
-const scaleFactor = 1.5;
+const scaleFactor = 1.0;
 const defaultTime0 = 62.5 * scaleFactor;
 let settingTime0 = false;
 let imageProcessingComplete = false;
@@ -20,13 +22,77 @@ let pulseYs = [];
 let savedTimes = [];
 
 function setup() {
-  // Define canvas size ONCE using your expected image width/height (or fixed default)
   createCanvas(Math.floor(970 * scaleFactor), Math.floor(560 * scaleFactor));
-  
-  // Load the initial image
-  if (fileList.length > 0) {
-    loadNextImage(currentImageIndex);
+
+  // Connect HTML UI Button to GitHub API Fetch
+  let loadBtn = select('#loadBtn');
+  if (loadBtn) {
+    loadBtn.mousePressed(() => {
+      let subfolder = select('#folderInput').value().trim();
+      if (subfolder.length > 0) {
+        fetchGitHubFolder(subfolder);
+      }
+    });
   }
+
+  // Optionally auto-load a default folder on startup (e.g. "images/run1")
+  fetchGitHubFolder("run1");
+}
+
+function fetchGitHubFolder(subfolderPath) {
+  // Construct GitHub REST API endpoint
+  let apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/images/${subfolderPath}`;
+
+  httpGet(apiUrl, 'json', false, (response) => {
+    if (!Array.isArray(response)) {
+      alert("Invalid folder response from GitHub.");
+      return;
+    }
+
+    // Filter for PNG files and sort alphabetically by file name
+    let pngFiles = response
+      .filter(item => item.name.toLowerCase().endsWith('.png'))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    fileList = [];
+    fileNames = [];
+
+    for (let file of pngFiles) {
+      fileList.push(file.download_url); // Direct raw URL for p5.loadImage()
+      fileNames.push(file.name);
+    }
+
+    if (fileList.length > 0) {
+      currentImageIndex = 0;
+      imageProcessingComplete = false;
+      savedTimes = [];
+      loadNextImage(currentImageIndex);
+    } else {
+      alert(`No .png files found in 'images/${subfolderPath}'.`);
+    }
+  }, (err) => {
+    console.error("Error fetching folder from GitHub:", err);
+    alert(`Could not find folder 'images/${subfolderPath}' on GitHub.`);
+  });
+}
+
+function loadNextImage(index) {
+  if (index >= fileList.length) {
+    recordCurrentPulseTimes();
+    exportCSV();
+    imageProcessingComplete = true;
+    return;
+  }
+
+  loadImage(
+    fileList[index],
+    (loadedImg) => {
+      img = loadedImg;
+    },
+    (err) => {
+      console.error(`Failed to load image at: ${fileList[index]}`, err);
+    }
+  );
 }
 
 function draw() {
@@ -37,15 +103,12 @@ function draw() {
     noStroke();
     textSize(18);
     textAlign(LEFT, TOP);
-    text("Loading image or image not found...", 20, 20);
-    text(`Path: ${fileList[currentImageIndex]}`, 20, 50);
+    text("Select or enter a valid subfolder above to load oscilloscope images.", 20, 20);
     return;
   }
 
-  // 3. Render scope display using actual loaded image dimensions or scale
-  let renderW = img.width > 0 ? img.width * scaleFactor : width;
-  let renderH = img.height > 0 ? img.height * scaleFactor : height;
-  image(img, 0, 0, renderW, renderH);
+  // Render scope display
+  image(img, 0, 0, scaleFactor * img.width, scaleFactor * img.height);
 
   // Active pulse line (white)
   stroke(255);
@@ -62,22 +125,22 @@ function draw() {
     line(xTime0, pulseYs[i], pulseXs[i], pulseYs[i]);
   }
 
-  // Sidebar & Readout Area
+  // --- SIDEBAR & READOUT AREA ---
   noStroke();
   textAlign(LEFT, TOP);
   textSize(16);
 
-  let sidebarX = Math.floor(scaleFactor * 800);
-  let sidebarY = 20;
+  let sidebarX = Math.floor(scaleFactor * 800); 
+  let sidebarY = Math.floor(scaleFactor * 40);
 
   fill(0);
   text("Pulse Times", sidebarX, sidebarY);
   fill(255, 0, 0);
-  text("Remove", sidebarX + 110, sidebarY);
+  text("Remove", sidebarX + 100, sidebarY);
 
   for (let i = 0; i < pulseXs.length; i++) {
     let pulseTime = (pulseXs[i] - xTime0) / (scaleFactor * 50);
-    let rowY = sidebarY + 30 + (i * 24);
+    let rowY = sidebarY + 28 + (i * 22);
 
     fill(0);
     text(`${i + 1})`, sidebarX, rowY);
@@ -85,7 +148,7 @@ function draw() {
 
     fill(225, 0, 0);
     ellipseMode(CENTER);
-    ellipse(sidebarX + 130, rowY + 8, 14, 14);
+    ellipse(sidebarX + 115, rowY + 8, 14, 14);
   }
 
   // Bottom Instructions Banner
@@ -102,33 +165,14 @@ function draw() {
   textSize(14);
   let metaY = height - 130;
   text(`#${currentImageIndex + 1} of ${fileList.length}`, 20, metaY);
-  text(`File: ${fileList[currentImageIndex]}`, 20, metaY + 18);
+  text(`File: ${fileNames[currentImageIndex]}`, 20, metaY + 18);
 
   if (imageProcessingComplete) {
     fill(255, 255, 0);
     textSize(36);
     textAlign(CENTER, CENTER);
-    text("All Images Completed", width / 2, height / 2);
+    text("All Images Completed - CSV Saved!", width / 2, height / 2);
   }
-}
-
-function loadNextImage(index) {
-  if (index >= fileList.length) {
-    imageProcessingComplete = true;
-    saveStrings(savedTimes, 'muon_lifetimes.csv');
-    return;
-  }
-
-  // Purely swap the image object—no canvas resizing required
-  loadImage(
-    fileList[index],
-    (loadedImg) => {
-      img = loadedImg;
-    },
-    (err) => {
-      console.error(`Failed to load image at: ${fileList[index]}`, err);
-    }
-  );
 }
 
 function mouseClicked() {
@@ -149,12 +193,13 @@ function mouseClicked() {
     pulseXs.push(mX);
     pulseYs.push(mY);
   } else {
+    // Remove Button Hitbox
     let sidebarX = Math.floor(scaleFactor * 800);
-    let sidebarY = 20;
+    let sidebarY = Math.floor(scaleFactor * 40);
 
     for (let i = 0; i < pulseXs.length; i++) {
-      let buttonX = sidebarX + 130;
-      let buttonY = sidebarY + 38 + (i * 24);
+      let buttonX = sidebarX + 115;
+      let buttonY = sidebarY + 28 + (i * 22) + 8;
       let d = dist(mX, mY, buttonX, buttonY);
 
       if (d < 10) {
@@ -167,7 +212,7 @@ function mouseClicked() {
 }
 
 function keyPressed() {
-  if (!img) return;
+  if (!img || imageProcessingComplete) return;
 
   if (keyCode === LEFT_ARROW && pulseXs.length > 0) {
     pulseXs[pulseXs.length - 1] -= 1;
@@ -184,7 +229,7 @@ function keyPressed() {
 
   if (key === 'Q' || key === 'q') {
     recordCurrentPulseTimes();
-    saveStrings(savedTimes, 'muon_lifetimes.csv');
+    exportCSV();
     imageProcessingComplete = true;
   }
 
@@ -200,4 +245,10 @@ function recordCurrentPulseTimes() {
   }
   pulseXs = [];
   pulseYs = [];
+}
+
+function exportCSV() {
+  if (savedTimes.length > 0) {
+    saveStrings(savedTimes, 'muon_lifetimes.csv');
+  }
 }
