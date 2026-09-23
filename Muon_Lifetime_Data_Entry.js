@@ -20,10 +20,10 @@ let pulseYs = [];
 let savedTimes = [];
 
 function setup() {
-  // 1. Create canvas with standard fallback dimensions immediately
+  // Define canvas size ONCE using your expected image width/height (or fixed default)
   createCanvas(Math.floor(970 * scaleFactor), Math.floor(560 * scaleFactor));
   
-  // 2. Load first image explicitly
+  // Load the initial image
   if (fileList.length > 0) {
     loadNextImage(currentImageIndex);
   }
@@ -118,15 +118,11 @@ function loadNextImage(index) {
     return;
   }
 
+  // Purely swap the image object—no canvas resizing required
   loadImage(
     fileList[index],
     (loadedImg) => {
       img = loadedImg;
-      // Dynamically resize canvas to fit scaled image dimensions once loaded
-      resizeCanvas(
-        Math.floor(scaleFactor * img.width),
-        Math.floor(scaleFactor * img.height)
-      );
     },
     (err) => {
       console.error(`Failed to load image at: ${fileList[index]}`, err);
