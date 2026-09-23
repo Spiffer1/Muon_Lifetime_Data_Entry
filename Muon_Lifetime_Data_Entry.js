@@ -9,7 +9,7 @@ let fileList = [
 ];
 let currentImageIndex = 0;
 
-const scaleFactor = 2.0;
+const scaleFactor = 1.0;
 const defaultTime0 = 62.5 * scaleFactor;
 let settingTime0 = false;
 let imageProcessingComplete = false;
