@@ -5,7 +5,10 @@
 let img;
 let fileList = [
   "images/scope1.png",  // Add your image relative paths here
-  "images/scope2.png"
+  "images/scope2.png",
+  "images/scope3.png",
+  "images/scope4.png",
+  "images/scope5.png"
 ];
 let currentImageIndex = 0;
 
