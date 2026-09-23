@@ -37,75 +37,40 @@ function setup() {
   }
 }
 
-function draw() {
-  background(200);
+function mouseClicked() {
+  if (imageProcessingComplete || !img) return;
 
-  if (!img) {
-    fill(0);
-    textSize(18);
-    text("No image found. Make sure 'images/scope1.png' exists in your repo.", 50, 50);
-    return;
+  let mX = mouseX;
+  let mY = mouseY;
+
+  if (settingTime0) {
+    xTime0 = mX;
+    settingTime0 = false;
+  } else if (
+    mX >= xTime0 &&
+    mX <= scaleFactor * 712.5 &&
+    mY >= scaleFactor * 60 &&
+    mY <= scaleFactor * 450
+  ) {
+    pulseXs.push(mX);
+    pulseYs.push(mY);
+  } else {
+    // Updated Remove Button detection logic
+    let sidebarX = Math.floor(scaleFactor * 750);
+    let sidebarY = 20;
+
+    for (let i = 0; i < pulseXs.length; i++) {
+      let buttonX = sidebarX + 130;
+      let buttonY = sidebarY + 38 + (i * 24);
+      let d = dist(mX, mY, buttonX, buttonY);
+
+      if (d < 10) {
+        pulseXs.splice(i, 1);
+        pulseYs.splice(i, 1);
+        break;
+      }
+    }
   }
-
-  // Render scope display
-  image(img, 0, 0, scaleFactor * img.width, scaleFactor * img.height);
-
-  // Draw active pulse line (white)
-  stroke(255);
-  strokeWeight(1);
-  if (pulseXs.length > 0) {
-    let currentPulseX = pulseXs[pulseXs.length - 1];
-    let currentPulseY = pulseYs[pulseYs.length - 1];
-    line(xTime0, currentPulseY, currentPulseX, currentPulseY);
-  }
-
-  // Draw historical pulse lines (gray)
-  stroke(75);
-  for (let i = 0; i < pulseXs.length - 1; i++) {
-    line(xTime0, pulseYs[i], pulseXs[i], pulseYs[i]);
-  }
-
-  // Draw sidebar readout
-  noStroke();
-  fill(0);
-  textSize(18);
-  text("Pulse Times", scaleFactor * 800, scaleFactor * 60);
-  fill(255, 0, 0);
-  text("Remove", scaleFactor * 800 + 100, scaleFactor * 60);
-
-  for (let i = 0; i < pulseXs.length; i++) {
-    let pulseTime = (pulseXs[i] - xTime0) / (scaleFactor * 50);
-    fill(0);
-    text(`${i + 1})`, scaleFactor * 820 - 22, scaleFactor * 60 + (i + 1) * 20);
-    text(nf(pulseTime, 0, 2), scaleFactor * 820, scaleFactor * 60 + (i + 1) * 20);
-
-    // Remove buttons
-    ellipseMode(CORNER);
-    fill(225, 0, 0);
-    ellipse(scaleFactor * 800 + 100, scaleFactor * 60 - 14 + (i + 1) * 20, 16, 16);
-  }
-
-  // On-screen instructions
-  fill(0);
-  let textX = scaleFactor * 25;
-  let textY = scaleFactor * 500;
-  text("Click a pulse to record its time. Use Left/Right arrows to adjust.", textX, textY);
-  text("Press 'S' to save pulse times & load next image.", textX, textY + 25);
-  text("Press 'Q' to finalize processing and download 'muon_lifetimes.csv'.", textX, textY + 50);
-
-  if (imageProcessingComplete) {
-    textSize(48);
-    fill(255, 255, 0);
-    text("All Images Completed", width / 4, height / 2);
-    return;
-  }
-
-  // File metadata display
-  fill(255);
-  textX = scaleFactor * 70;
-  textY = scaleFactor * 375;
-  text(`#${currentImageIndex + 1} of ${fileList.length}`, textX, textY);
-  text(`File: ${fileList[currentImageIndex]}`, textX, textY + 25);
 }
 
 function mouseClicked() {
