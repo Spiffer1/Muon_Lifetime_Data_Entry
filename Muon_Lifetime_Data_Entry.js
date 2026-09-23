@@ -67,7 +67,7 @@ function draw() {
   textAlign(LEFT, TOP);
   textSize(16);
 
-  let sidebarX = Math.floor(scaleFactor * 850);
+  let sidebarX = Math.floor(scaleFactor * 800);
   let sidebarY = 20;
 
   fill(0);
@@ -148,7 +148,7 @@ function mouseClicked() {
     pulseXs.push(mX);
     pulseYs.push(mY);
   } else {
-    let sidebarX = Math.floor(scaleFactor * 750);
+    let sidebarX = Math.floor(scaleFactor * 800);
     let sidebarY = 20;
 
     for (let i = 0; i < pulseXs.length; i++) {
