@@ -91,12 +91,16 @@ function mouseClicked() {
     pulseXs.push(mX);
     pulseYs.push(mY);
   } else {
-    // Remove button detection
-    let centerX = scaleFactor * 800 + 108;
+    // Updated Remove Button detection logic
+    let sidebarX = Math.floor(scaleFactor * 750);
+    let sidebarY = 20;
+
     for (let i = 0; i < pulseXs.length; i++) {
-      let centerY = scaleFactor * 60 - 6 + (i + 1) * 20;
-      let d = dist(mX, mY, centerX, centerY);
-      if (d < 8) {
+      let buttonX = sidebarX + 130;
+      let buttonY = sidebarY + 38 + (i * 24);
+      let d = dist(mX, mY, buttonX, buttonY);
+
+      if (d < 10) {
         pulseXs.splice(i, 1);
         pulseYs.splice(i, 1);
         break;
