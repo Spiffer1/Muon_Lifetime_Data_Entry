@@ -154,10 +154,12 @@ function draw() {
 
   // Bottom Instructions Banner
   fill(0);
-  textSize(14);
   let bottomY = height - 80;
 
-  text(`${microsecondsPerDiv} microseconds/Division. Press 1 to change to 1us/div or 5 for 0.5us/div`, 20, bottomY); 
+  textSize(24);
+  text(`${microsecondsPerDiv} microseconds/Division.`, 250, bottomY);
+  textSize(14);
+  text("Press '1' to change to 1us/div or '5' for 0.5us/div`, 20, bottomY); 
   text("• Click a pulse to record its time. Use Left/Right arrows to adjust.", 20, bottomY + 20);
   text("• Press 'S' to save pulse times & load next image.", 20, bottomY + 40);
   text("• Press 'Q' to finalize processing and download 'muon_lifetimes.csv'.", 20, bottomY + 60);
