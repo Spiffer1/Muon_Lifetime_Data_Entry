@@ -11,7 +11,7 @@ let fileList = [];  // Holds download URLs from GitHub API
 let fileNames = []; // Holds display names
 let currentImageIndex = 0;
 
-const scaleFactor = 1.0;
+const scaleFactor = 2.0;
 const defaultTime0 = 62.5 * scaleFactor;
 let settingTime0 = false;
 let imageProcessingComplete = false;
@@ -163,7 +163,7 @@ function draw() {
   // File Metadata Display
   fill(255);
   textSize(14);
-  let metaY = height - 200;
+  let metaY = height - scaleFactor * 200;
   text(`#${currentImageIndex + 1} of ${fileList.length}`, 20, metaY);
   text(`File: ${fileNames[currentImageIndex]}`, 20, metaY + 18);
 
