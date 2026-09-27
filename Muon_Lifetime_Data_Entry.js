@@ -11,7 +11,7 @@ let fileList = [];  // Holds download URLs from GitHub API
 let fileNames = []; // Holds display names
 let currentImageIndex = 0;
 
-const scaleFactor = 1.5;
+const scaleFactor = 1.0;
 const defaultTime0 = 62.5 * scaleFactor;
 let microsecondsPerDiv = 1.0;
 let settingTime0 = false;
@@ -159,7 +159,7 @@ function draw() {
   textSize(24);
   text(`${microsecondsPerDiv} microseconds/Division.`, 450, bottomY);
   textSize(14);
-  text("Press '1' to change to 1us/div or '5' for 0.5us/div", 20, bottomY); 
+  text("• Press '1' to change to 1us/div or '5' for 0.5us/div", 20, bottomY); 
   text("• Click a pulse to record its time. Use Left/Right arrows to adjust.", 20, bottomY + 20);
   text("• Press 'S' to save pulse times & load next image.", 20, bottomY + 40);
   text("• Press 'Q' to finalize processing and download 'muon_lifetimes.csv'.", 20, bottomY + 60);
@@ -239,6 +239,14 @@ function keyPressed() {
 
   if (key === 'C' || key === 'c') {
     settingTime0 = true;
+  }
+
+  if (key === '1') {
+    microsecondsPerDiv = 1.0;
+  }
+
+  if (key === '5') {
+    microsecondsPerDiv = 0.5;
   }
 }
 
