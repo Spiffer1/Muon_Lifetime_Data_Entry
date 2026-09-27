@@ -11,7 +11,7 @@ let fileList = [];  // Holds download URLs from GitHub API
 let fileNames = []; // Holds display names
 let currentImageIndex = 0;
 
-const scaleFactor = 1.0;
+const scaleFactor = 1.5;
 const defaultTime0 = 62.5 * scaleFactor;
 let microsecondsPerDiv = 1.0;
 let settingTime0 = false;
@@ -79,7 +79,6 @@ function fetchGitHubFolder(subfolderPath) {
 
 function loadNextImage(index) {
   if (index >= fileList.length) {
-    recordCurrentPulseTimes();
     exportCSV();
     imageProcessingComplete = true;
     return;
