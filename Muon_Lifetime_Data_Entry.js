@@ -11,7 +11,7 @@ let fileList = [];  // Holds download URLs from GitHub API
 let fileNames = []; // Holds display names
 let currentImageIndex = 0;
 
-const scaleFactor = 2.0;
+const scaleFactor = 1.5;
 const defaultTime0 = 62.5 * scaleFactor;
 let microsecondsPerDiv = 1.0;
 let settingTime0 = false;
@@ -157,7 +157,7 @@ function draw() {
   let bottomY = height - 80;
 
   textSize(24);
-  text(`${microsecondsPerDiv} microseconds/Division.`, 250, bottomY);
+  text(`${microsecondsPerDiv} microseconds/Division.`, 450, bottomY);
   textSize(14);
   text("Press '1' to change to 1us/div or '5' for 0.5us/div", 20, bottomY); 
   text("• Click a pulse to record its time. Use Left/Right arrows to adjust.", 20, bottomY + 20);
