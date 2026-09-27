@@ -156,7 +156,7 @@ function draw() {
   fill(0);
   let bottomY = height - 80;
 
-  textSize(24);
+  textSize(14);
   text(`${microsecondsPerDiv} microseconds/Division.`, 250, bottomY);
   textSize(14);
   text("Press '1' to change to 1us/div or '5' for 0.5us/div`, 20, bottomY); 
