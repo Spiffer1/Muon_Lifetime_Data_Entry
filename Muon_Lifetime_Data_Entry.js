@@ -163,7 +163,7 @@ function draw() {
   // File Metadata Display
   fill(255);
   textSize(14);
-  let metaY = height - 130;
+  let metaY = height - 200;
   text(`#${currentImageIndex + 1} of ${fileList.length}`, 20, metaY);
   text(`File: ${fileNames[currentImageIndex]}`, 20, metaY + 18);
 
