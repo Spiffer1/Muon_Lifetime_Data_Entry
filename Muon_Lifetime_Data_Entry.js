@@ -140,7 +140,7 @@ function draw() {
   text("Remove", sidebarX + 100, sidebarY);
 
   for (let i = 0; i < pulseXs.length; i++) {
-    let pulseTime = (pulseXs[i] - xTime0) / (scaleFactor * 50);
+    let pulseTime = (pulseXs[i] - xTime0) * microsecondsPerDiv / (scaleFactor * 50);
     let rowY = sidebarY + 28 + (i * 22);
 
     fill(0);
