@@ -13,6 +13,7 @@ let currentImageIndex = 0;
 
 const scaleFactor = 2.0;
 const defaultTime0 = 62.5 * scaleFactor;
+let microsecondsPerDiv = 1.0;
 let settingTime0 = false;
 let imageProcessingComplete = false;
 
@@ -156,9 +157,10 @@ function draw() {
   textSize(14);
   let bottomY = height - 80;
 
-  text("• Click a pulse to record its time. Use Left/Right arrows to adjust.", 20, bottomY);
-  text("• Press 'S' to save pulse times & load next image.", 20, bottomY + 20);
-  text("• Press 'Q' to finalize processing and download 'muon_lifetimes.csv'.", 20, bottomY + 40);
+  text(`${microsecondsPerDiv} microseconds/Division. Press 1 to change to 1us/div or 5 for 0.5us/div`, 20, bottomY); 
+  text("• Click a pulse to record its time. Use Left/Right arrows to adjust.", 20, bottomY + 20);
+  text("• Press 'S' to save pulse times & load next image.", 20, bottomY + 40);
+  text("• Press 'Q' to finalize processing and download 'muon_lifetimes.csv'.", 20, bottomY + 60);
 
   // File Metadata Display
   fill(255);
@@ -240,7 +242,7 @@ function keyPressed() {
 
 function recordCurrentPulseTimes() {
   for (let x of pulseXs) {
-    let t = (x - xTime0) / (scaleFactor * 50);
+    let t = (x - xTime0) * microsecondsPerDiv / (scaleFactor * 50);
     savedTimes.push(t.toFixed(4));
   }
   pulseXs = [];
