@@ -13,7 +13,7 @@ let currentImageIndex = 0;
 
 const scaleFactor = 1.5;
 const defaultTime0 = 62.5 * scaleFactor;
-let microsecondsPerDiv = 1.0;
+let microsecondsPerDiv = 0.5;
 let settingTime0 = false;
 let imageProcessingComplete = false;
 
