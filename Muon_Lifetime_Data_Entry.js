@@ -37,7 +37,7 @@ function setup() {
   }
 
   // Optionally auto-load a default folder on startup (e.g. "images/run1")
-  fetchGitHubFolder("run1");
+  fetchGitHubFolder("decays_09_26_26");
 }
 
 function fetchGitHubFolder(subfolderPath) {
